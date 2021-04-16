@@ -27,12 +27,14 @@ module.exports = {
     return formatted;
   },
   async create(task) {
-    const [id] = await db("tasks").insert({
-      task_description: task.task_description,
-      task_notes: task.task_notes,
-      task_completed: task.task_completed,
-      project_id: task.project_id,
-    });
-    return db("tasks").where("task_id", id);
+    const [id] = await db("tasks").insert(task);
+    const formatted = await db("tasks").where("task_id", id).first();
+    // changing task_completed from 0 or 1 to true or false
+    if (formatted.task_completed === 0) {
+      formatted.task_completed = false;
+    } else {
+      formatted.task_completed = true;
+    }
+    return formatted;
   },
 };

@@ -6,7 +6,7 @@ module.exports = {
   async get() {
     const projects = await db("projects");
 
-    // changing task_completed from 0 or 1 to true or false
+    // changing project_completed from 0 or 1 to true or false
     const formatted = projects.map((project) => {
       if (project.project_completed === 0) {
         project.project_completed = false;
@@ -18,11 +18,15 @@ module.exports = {
     return formatted;
   },
   async create(project) {
-    const [id] = await db("projects").insert({
-      project_name: project.project_name,
-      project_description: project.project_description,
-      project_completed: project.project_completed,
-    });
-    return db("projects").where("project_id", id).first();
+    const [id] = await db("projects").insert(project);
+    const formatted = await db("projects").where("project_id", id).first();
+
+    // changing project_completed from 0 or 1 to true or false
+    if (formatted.project_completed === 0) {
+      formatted.project_completed = false;
+    } else {
+      formatted.project_completed = true;
+    }
+    return formatted;
   },
 };
